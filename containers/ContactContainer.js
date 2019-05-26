@@ -7,23 +7,42 @@ import {
     TouchableOpacity
 } from "react-native";
 import { Field, reduxForm } from 'redux-form';
+import * as EmailValidator from 'email-validator';
 
-const renderField = ( {keyboardType, name, label, placeholder} ) => {
+const validate = (values = {}) => {
+    const errors = {};
+    if(!values.username){
+        errors.username = 'Required';
+    }else if (!values.email){
+        errors.email = 'Required';
+    }else if (!EmailValidator.validate(values.email)) {
+        errors.email = 'Invalid Email';
+    }
+    return errors;
+}
+
+const renderField = ( {keyboardType, name, label, placeholder, meta: {touched, error, warning}, input:{onChange, ...resInput}} ) => {
     return (
-        <View style = {styles.field}>
-            <Text style={styles.label}>{label}</Text>
-            <TextInput
-                style={styles.input}
-                keyboardType = {keyboardType}
-                placeholder ={placeholder}
-            >
+        <View style = {{flexDirection: 'column', height: 60, alignItems: 'flex-start'}}>
+            <View style = {styles.field}>
+                <Text style={styles.label}>{label}</Text>
+                <TextInput
+                    style={styles.input}
+                    keyboardType = {keyboardType}
+                    placeholder ={placeholder}
+                    onChangeText = {onChange}
+                    {...resInput}
+                >
 
-            </TextInput>
+                </TextInput>
+            </View>
+            {touched && ((error && <Text style={{color: 'red'}}>{error}</Text>) || (warning && <Text style={{color: 'orange'}}>{warning}</Text>) ) }
         </View>
+        
     );
 }
 const ContactFormComponent = props => {
-    console.log(props);
+    const {handleSubmit} = props;
     return (
         <View style={styles.wrapperForm}>
             <Text style = {styles.titleForm}>REDUX FORM</Text>
@@ -31,7 +50,9 @@ const ContactFormComponent = props => {
             <Field keyboardType="email-address" name="email" component={renderField} style={styles.field}  label="Email"  placeholder = "Email"/>
             <TouchableOpacity
                 style= {{alignItems: 'center'}}
-                onPress = {() => {}}
+                onPress = {() => { 
+                    handleSubmit('abc') 
+                }}
             >
                 <Text style= {styles.btnSubmit}>
                     {`Submit`.toUpperCase()}
@@ -41,7 +62,8 @@ const ContactFormComponent = props => {
     );
 }
 const ContactContainer = reduxForm({
-    form: 'contact'
+    form: 'contact',
+    validate
 })(ContactFormComponent);
 
 export default ContactContainer;

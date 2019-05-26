@@ -12,7 +12,7 @@ import ContactContainer from './containers/ContactContainer';
 export default class App extends Component{
 
     _handleSubmit = (value) => {
-        alert('Submit onPress');
+        alert(value);
     }
     render() {
         return (
